@@ -16,9 +16,14 @@ will provide features such as `onShow` callbacks, etc. Please see
 ## Documentation Index
 
 * [CollectionView's `itemView`](#collectionviews-itemview)
-* [CollectionView's `itemViewOptions`](#collectionviews-itemviewoptions)
+  * [CollectionView's `getItemView`](#collectionviews-getitemview)
+  * [CollectionView's `itemViewOptions`](#collectionviews-itemviewoptions)
+  * [CollectionView's `itemViewEventPrefix`](#collectionviews-itemvieweventprefix)
+  * [CollectionView's `itemEvents`](#collectionviews-itemevents)
+  * [CollectionView's `buildItemView`](#collectionviews-builditemview)
+  * [CollectionView's `addItemView`](#collectionviews-additemview)
 * [CollectionView's `emptyView`](#collectionviews-emptyview)
-* [CollectionView's `buildItemView`](#collectionviews-builditemview)
+  * [CollectionView's `getEmptyView`](#collectionviews-getemptyview)
 * [Callback Methods](#callback-methods)
   * [onBeforeRender callback](#onbeforerender-callback)
   * [onRender callback](#onrender-callback)
@@ -35,8 +40,6 @@ will provide features such as `onShow` callbacks, etc. Please see
   * ["before:item:added" / "after:item:added" event](#beforeitemadded--afteritemadded-event)
   * ["item:removed" event](#itemremoved-event)
   * ["itemview:\*" event bubbling from child views](#itemview-event-bubbling-from-child-views)
-* [CollectionView's `itemViewEventPrefix`](#collectionviews-itemvieweventprefix)
-* [CollectionView's `itemEvents`](#collectionviews-itemevents)
 * [CollectionView render](#collectionview-render)
 * [CollectionView: Automatic Rendering](#collectionview-automatic-rendering)
 * [CollectionView: Re-render Collection](#collectionview-re-render-collection)
@@ -76,8 +79,9 @@ new MyCollectionView({
 If you do not specify an `itemView`, an exception will be thrown
 stating that you must specify an `itemView`.
 
-If you need a view specific to your model, you can override
-`getItemView`:
+## CollectionView's `getItemView`
+The value returned by this method is the `ItemView` class that will be instantiated when a `Model` needs to be initially rendered.
+This method also gives you the ability to customize per `Model` `ItemViews`.
 
 ```js
 Backbone.Marionette.CollectionView.extend({
@@ -148,7 +152,9 @@ Backbone.Marionette.CollectionView.extend({
 });
 ```
 
-Or, if you need the `emptyView`'s type chosen dynamically, specify `getEmptyView`:
+## CollectionView's `getEmptyView`
+
+If you need the `emptyView`'s type chosen dynamically, specify `getEmptyView`:
 
 ```js
 Backbone.Marionette.CollectionView.extend({
@@ -191,6 +197,20 @@ buildItemView: function(item, ItemViewType, itemViewOptions){
   // return it
   return view;
 },
+```
+
+## CollectionView's `addItemView`
+
+The `addItemView` method is responsible for rendering the `itemViews` and adding them to the HTML for the `collectionView` instance. It is also responsible for triggering the events per `ItemView`. In most cases you should not override this method. However if you do want to short circut this method, it can be accomplished via the following.
+
+```js
+Backbone.Marionette.CollectionView.extend({
+  addItemView: function(item, ItemView, index){
+    if (item.shouldBeShown()) {
+      Backbone.Marionette.CollectionView.prototype.addItemView.apply(this, arguments);
+    }
+  }
+});
 ```
 
 ## Callback Methods
